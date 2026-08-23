@@ -7,7 +7,9 @@ param(
 
     [string]$BuildTargetDirectory,
 
-    [switch]$SkipBuild
+    [switch]$SkipBuild,
+
+    [switch]$CreateArchive
 )
 
 $ErrorActionPreference = 'Stop'
@@ -16,6 +18,22 @@ $workspaceRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..\..')).P
 $targetRoot = Join-Path $workspaceRoot 'target'
 New-Item -ItemType Directory -Path $targetRoot -Force | Out-Null
 $targetRoot = (Resolve-Path -LiteralPath $targetRoot).Path
+
+Push-Location $workspaceRoot
+try {
+    $metadataJson = & cargo metadata --offline --no-deps --format-version 1
+    if ($LASTEXITCODE -ne 0) {
+        throw "Cargo metadata failed with exit code $LASTEXITCODE"
+    }
+    $metadata = $metadataJson | ConvertFrom-Json
+    $editorPackage = $metadata.packages | Where-Object { $_.name -eq 'revy_editor' } | Select-Object -First 1
+    if ($null -eq $editorPackage) {
+        throw 'Unable to determine the Revy editor version from Cargo metadata'
+    }
+    $revyVersion = $editorPackage.version
+} finally {
+    Pop-Location
+}
 
 if ([string]::IsNullOrWhiteSpace($OutputDirectory)) {
     $outputRoot = Join-Path $targetRoot 'package\Revy'
@@ -111,9 +129,11 @@ Copy-DirectoryContents -Source (Join-Path $workspaceRoot 'build\templates') -Des
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'new_project.ps1') -Destination (Join-Path $outputRoot 'new_project.ps1')
 Copy-Item -LiteralPath (Join-Path $workspaceRoot 'build\packaging\RELEASE_README.md') -Destination (Join-Path $outputRoot 'README.md')
 Copy-Item -LiteralPath (Join-Path $workspaceRoot 'LICENSE') -Destination (Join-Path $outputRoot 'LICENSE')
+Copy-Item -LiteralPath (Join-Path $workspaceRoot 'CHANGELOG.md') -Destination (Join-Path $outputRoot 'CHANGELOG.md')
 
 $toolchainInfo = "$(rustc --version)`r`n$(cargo --version)`r`n"
 [System.IO.File]::WriteAllText((Join-Path $outputRoot 'TOOLCHAIN.txt'), $toolchainInfo, [System.Text.UTF8Encoding]::new($false))
+[System.IO.File]::WriteAllText((Join-Path $outputRoot 'VERSION.txt'), "$revyVersion`r`n", [System.Text.UTF8Encoding]::new($false))
 
 $licenseRoot = Join-Path $outputRoot 'licenses'
 New-Item -ItemType Directory -Path $licenseRoot -Force | Out-Null
@@ -149,4 +169,32 @@ $cargoConfig = $cargoConfig.Replace('{{CARGO_VENDOR_PATH}}', '../sdk/source/vend
 [System.IO.File]::WriteAllText((Join-Path $gameRoot '.cargo\config.toml'), $cargoConfig, $utf8NoBom)
 Remove-Item -LiteralPath $cargoConfigTemplatePath
 
-Write-Output "Packaged $Configuration editor and SDK at $outputRoot"
+Write-Output "Packaged Revy $revyVersion $Configuration editor and SDK at $outputRoot"
+
+if ($CreateArchive) {
+    $archiveName = "Revy-$revyVersion-windows-x86_64.zip"
+    $archivePath = Join-Path $targetRoot "package\$archiveName"
+    $checksumPath = "$archivePath.sha256"
+    if (Test-Path -LiteralPath $archivePath) {
+        Remove-Item -LiteralPath $archivePath -Force
+    }
+    if (Test-Path -LiteralPath $checksumPath) {
+        Remove-Item -LiteralPath $checksumPath -Force
+    }
+
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [System.IO.Compression.ZipFile]::CreateFromDirectory(
+        $outputRoot,
+        $archivePath,
+        [System.IO.Compression.CompressionLevel]::Optimal,
+        $true
+    )
+    $archiveHash = (Get-FileHash -LiteralPath $archivePath -Algorithm SHA256).Hash.ToLowerInvariant()
+    [System.IO.File]::WriteAllText(
+        $checksumPath,
+        "$archiveHash  $archiveName`r`n",
+        [System.Text.UTF8Encoding]::new($false)
+    )
+    Write-Output "Created release archive $archivePath"
+    Write-Output "Created SHA-256 checksum $checksumPath"
+}

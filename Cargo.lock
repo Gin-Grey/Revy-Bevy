@@ -195,7 +195,7 @@ dependencies = [
 
 [[package]]
 name = "arisna_engine"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 dependencies = [
  "bevy",
  "bevy_ufbx",
@@ -4335,7 +4335,7 @@ checksum = "19b30a45b0cd0bcca8037f3d0dc3421eaf95327a17cad11964fb8179b4fc4832"
 
 [[package]]
 name = "revy_editor"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 dependencies = [
  "arisna_engine",
  "bevy",
@@ -4350,7 +4350,7 @@ dependencies = [
 
 [[package]]
 name = "revy_game"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 dependencies = [
  "arisna_engine",
 ]

@@ -1,5 +1,10 @@
 # Revy
 
+This is **Revy 0.1.0 Alpha 1**, an early preview intended for evaluation and
+contribution. Project APIs, editor workflows, and the BSN scene format may
+change before the Beta stage. Back up projects before opening them in a newer
+Alpha build.
+
 This package contains the Release editor, the Rust engine SDK, and a starter
 game project. The unified engine source workspace lives under
 `sdk/source/engine`; it is a build input and is never mounted as `res://` in

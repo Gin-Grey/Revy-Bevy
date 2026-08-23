@@ -80,22 +80,31 @@ git show <上游提交>
 
 ## 5. 版本与发布
 
-建议使用语义化版本：
+Revy 使用语义化版本及标准预发布后缀。当前版本是
+`0.1.0-alpha.1`，对应 Git 标签 `v0.1.0-alpha.1`：
 
-```text
-0.1.x  当前编辑器功能迭代和修复
-0.2.0  场景/API 出现向后兼容的新能力
-1.0.0  场景格式、脚本 API 和运行流程稳定
-```
+| 阶段 | 示例 | 准入标准 |
+|---|---|---|
+| 开发快照 | `0.1.0-dev.20260824` | 仅用于短期测试，不承诺可启动或兼容 |
+| Alpha | `0.1.0-alpha.1` | 核心链路可体验，API、工作流和 BSN 格式仍可调整 |
+| Beta | `0.1.0-beta.1` | 主要功能完整，开始维护项目与场景兼容性 |
+| RC | `0.1.0-rc.1` | 功能冻结，只修复发布阻断问题 |
+| 正式版 | `0.1.0` | 经过真实项目验证，可供一般用户稳定使用 |
+
+进入 Beta 前必须完成一个真实 2D 游戏，并稳定实现 `.bsn` 嵌套、2D、UI、动画、
+输入、碰撞、音频、Undo/Redo、崩溃保护和项目迁移。RC 阶段禁止加入新功能。
+`1.0.0` 仅在公共 API、插件体系、项目格式和升级规则稳定，并完成嵌入式或机器人
+仿真方向的初步验证后发布。
 
 发布步骤：
 
 1. 更新根 `Cargo.toml` 版本、`README.md` 和架构文档。
 2. 运行编辑器与引擎测试，并完成“打开 `.bsn` -> 修改 -> 保存 -> 编辑器内运行”。
-3. 执行 `build/scripts/package_release.ps1 -Configuration Release`。
-4. 检查 `target/package/Revy`，不要提交打包目录。
-5. 创建带注释标签，例如 `git tag -a v0.1.0 -m "Revy 0.1.0"`。
-6. 推送标签并在 GitHub Release 上传压缩后的发布包。
+3. 执行 `build/scripts/package_release.ps1 -Configuration Release -CreateArchive`。
+4. 检查 `target/package/Revy`、版本化 ZIP 及 SHA-256 文件，不要提交打包目录。
+5. 创建带注释标签，例如 `git tag -a v0.1.0-alpha.1 -m "Revy 0.1.0 Alpha 1"`。
+6. 推送标签并在 GitHub Release 上传压缩后的发布包；Alpha、Beta 和 RC 必须标记为
+   Pre-release，只有无后缀的正式版本可以标记为 Latest。
 
 ## 6. 改名兼容策略
 
