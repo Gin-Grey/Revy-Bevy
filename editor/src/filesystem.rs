@@ -1859,8 +1859,8 @@ mod tests {
         assert!(is_supported_model_file("assets/models/hero.glb"));
         assert!(is_supported_model_file("assets/models/hero.GLTF"));
         assert_eq!(
-            model_resource_path_from_filesystem("assets/3d/role/SY.fbx").unwrap(),
-            "res://3d/role/SY.fbx"
+            model_resource_path_from_filesystem("assets/models/character.fbx").unwrap(),
+            "res://models/character.fbx"
         );
         assert_eq!(
             model_resource_path_from_filesystem("assets/3d/role/hero.glb").unwrap(),
@@ -1870,8 +1870,8 @@ mod tests {
             model_resource_path_from_filesystem("assets/3d/role/hero.gltf").unwrap(),
             "res://3d/role/hero.gltf"
         );
-        assert!(model_resource_path_from_filesystem("docs/SY.fbx").is_err());
-        assert!(model_resource_path_from_filesystem("assets/3d/SY.blend").is_err());
+        assert!(model_resource_path_from_filesystem("docs/character.fbx").is_err());
+        assert!(model_resource_path_from_filesystem("assets/models/character.blend").is_err());
     }
 
     #[test]

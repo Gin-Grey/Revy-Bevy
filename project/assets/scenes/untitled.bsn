@@ -11,48 +11,12 @@ SceneNodeData {
     ui_content: None,
     sprite: None,
     model: None,
-    translation: (1024.0, 0.0, 0.0),
+    translation: (0.0, 0.0, 0.0),
     rotation: (0.0, 0.0, 0.0, 1.0),
     scale: (1.0, 1.0, 1.0),
 }
 Transform {
-    translation: Vec3(1024.0, 0.0, 0.0),
+    translation: Vec3(0.0, 0.0, 0.0),
     rotation: Quat(0.0, 0.0, 0.0, 1.0),
     scale: Vec3(1.0, 1.0, 1.0),
 }
-Children [
-    (
-        Name("Sprite2D")
-        SceneNodeData {
-            id: "1c77435773fd4bb1b2fe79b5dd3ef225",
-            parent: Some("ab997f0aafaf4eedb66e9e3997015343"),
-            order: 0,
-            name: "Sprite2D",
-            kind: "sprite2d",
-            space: Some("2d"),
-            components: [],
-            ui_layout: None,
-            ui_content: None,
-            sprite: Some(SceneSprite2D {
-    image_path: "res://arts/Z战队营地.png",
-    color: (1.0, 1.0, 1.0, 1.0),
-    flip_x: false,
-    flip_y: false,
-    visible: false,
-    region_enabled: false,
-    region_rect: (0.0, 0.0, 64.0, 64.0),
-    z_index: 1,
-    anchor: (0.0, 0.0),
-}),
-            model: None,
-            translation: (0.0, 0.0, 1.0),
-            rotation: (0.0, 0.0, 0.0, 1.0),
-            scale: (0.9, 0.9, 1.0),
-        }
-        Transform {
-            translation: Vec3(0.0, 0.0, 1.0),
-            rotation: Quat(0.0, 0.0, 0.0, 1.0),
-            scale: Vec3(0.9, 0.9, 1.0),
-        }
-    ),
-]

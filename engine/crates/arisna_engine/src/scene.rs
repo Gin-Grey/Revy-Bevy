@@ -105,7 +105,7 @@ pub struct SceneNodeData {
 #[derive(Reflect, Debug, Clone, Default, Deserialize, Serialize, PartialEq, Eq)]
 pub struct SceneCustomComponent {
     /// Fully-qualified project type path, for example
-    /// `jjxf_client::world::entities::MovementState`.
+    /// `example_game::world::entities::MovementState`.
     pub type_path: String,
     /// Project-relative source path stored as `res://src/...`.
     pub source_path: String,
@@ -4838,7 +4838,7 @@ mod tests {
                     space: Some("2d".into()),
                     components: Vec::new(),
                     custom_components: vec![SceneCustomComponent {
-                        type_path: "jjxf_client::world::entities::MovementState".into(),
+                        type_path: "example_game::world::entities::MovementState".into(),
                         source_path: "res://src/world/entities.rs".into(),
                         fields: vec![SceneCustomField {
                             name: "state".into(),
