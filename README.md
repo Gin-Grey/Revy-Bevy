@@ -12,15 +12,6 @@
 
 ![Revy 编辑器界面](docs/images/revy-editor-overview.png)
 
-Revy is an independent open-source engine workspace derived from Bevy **0.19**, with a
-Godot-inspired desktop editor and a separate game project. The inherited Bevy
-foundation and the custom engine now share one engine source workspace.
-
-适配最新 Bevy 的开源编辑器，以此过渡到 Bevy 官方版本编辑器。或许我们可以做得
-更好，例如进一步支持 Robot 仿真等应用场景。
-
-Repository: https://github.com/Gin-Grey/Revy-Bevy
-
 ## Workspace architecture
 
 ```text
