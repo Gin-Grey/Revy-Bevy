@@ -1,0 +1,18 @@
+[package]
+name = "{{PACKAGE_NAME}}"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97"
+
+[dependencies]
+revy_engine = { package = "arisna_engine", path = "{{ENGINE_PATH}}" }
+
+[workspace]
+
+# Editor Play builds favor iteration speed and avoid multi-gigabyte Windows PDBs.
+[profile.dev]
+debug = 0
+incremental = true
+
+[profile.dev.package."*"]
+opt-level = 1

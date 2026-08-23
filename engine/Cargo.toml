@@ -1,0 +1,715 @@
+[package]
+name = "bevy"
+version = "0.19.0"
+edition = "2024"
+categories = ["game-engines", "graphics", "gui", "rendering"]
+description = "Revy's internal engine foundation, derived from Bevy 0.19"
+keywords = ["game", "engine", "gamedev", "graphics", "revy"]
+license = "MIT OR Apache-2.0"
+rust-version = "1.95.0"
+publish = false
+
+[workspace]
+resolver = "3"
+members = [
+  "crates/*",
+]
+exclude = [
+  # Arisna's public engine layer belongs to the outer product workspace.
+  "crates/arisna_engine",
+]
+
+[workspace.lints.clippy]
+doc_markdown = "warn"
+manual_let_else = "warn"
+match_same_arms = "warn"
+redundant_closure_for_method_calls = "warn"
+redundant_else = "warn"
+semicolon_if_nothing_returned = "warn"
+type_complexity = "allow"
+undocumented_unsafe_blocks = "warn"
+unwrap_or_default = "warn"
+needless_lifetimes = "allow"
+too_many_arguments = "allow"
+nonstandard_macro_braces = "warn"
+print_stdout = "warn"
+print_stderr = "warn"
+
+ptr_as_ptr = "warn"
+ptr_cast_constness = "warn"
+ref_as_ptr = "warn"
+
+# see: https://github.com/bevyengine/bevy/pull/15375#issuecomment-2366966219
+too_long_first_doc_paragraph = "allow"
+
+std_instead_of_core = "warn"
+std_instead_of_alloc = "warn"
+alloc_instead_of_core = "warn"
+
+allow_attributes = "warn"
+allow_attributes_without_reason = "warn"
+
+[workspace.lints.rust]
+missing_docs = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(docsrs_dep)'] }
+unsafe_code = "deny"
+unsafe_op_in_unsafe_fn = "warn"
+unused_qualifications = "warn"
+
+# Unfortunately, cargo does not currently support overriding workspace lints
+# inside a particular crate. See https://github.com/rust-lang/cargo/issues/13157
+#
+# We require an override for cases like `std_instead_of_core`, which are intended
+# for the library contributors and not for how users should consume Bevy.
+# To ensure examples aren't subject to these lints, below is a duplication of the
+# workspace lints, with the "overrides" applied.
+#
+# [lints]
+# workspace = true
+
+[lints.clippy]
+doc_markdown = "warn"
+manual_let_else = "warn"
+match_same_arms = "warn"
+redundant_closure_for_method_calls = "warn"
+redundant_else = "warn"
+semicolon_if_nothing_returned = "warn"
+type_complexity = "allow"
+undocumented_unsafe_blocks = "warn"
+unwrap_or_default = "warn"
+needless_lifetimes = "allow"
+too_many_arguments = "allow"
+nonstandard_macro_braces = "warn"
+
+ptr_as_ptr = "warn"
+ptr_cast_constness = "warn"
+ref_as_ptr = "warn"
+
+too_long_first_doc_paragraph = "allow"
+
+std_instead_of_core = "allow"
+std_instead_of_alloc = "allow"
+alloc_instead_of_core = "allow"
+
+allow_attributes = "warn"
+allow_attributes_without_reason = "warn"
+
+[lints.rust]
+missing_docs = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(docsrs_dep)'] }
+unsafe_code = "deny"
+unsafe_op_in_unsafe_fn = "warn"
+unused_qualifications = "warn"
+
+[features]
+default = ["2d", "3d", "ui", "audio"]
+
+# PROFILE: The default 2D Bevy experience. This includes the core Bevy framework, 2D functionality, scenes and picking.
+2d = ["default_app", "default_platform", "2d_bevy_render", "scene", "picking"]
+
+# PROFILE: The default 3D Bevy experience. This includes the core Bevy framework, 3D functionality, scenes and picking.
+3d = ["default_app", "default_platform", "3d_bevy_render", "scene", "picking"]
+
+# PROFILE: The default Bevy UI experience. This includes the core Bevy framework, Bevy UI, scenes, and picking.
+ui = [
+  "default_app",
+  "default_platform",
+  "ui_api",
+  "ui_bevy_render",
+  "scene",
+  "picking",
+  "bevy_ui_widgets",
+]
+
+# COLLECTION: Enable this feature during development to improve the development experience. This adds features like asset hot-reloading and debugging tools. This should not be enabled for published apps!
+dev = [
+  "debug",          # TODO: rename this to something more specific ... this is a "debug ECS names" feature
+  "bevy_dev_tools",
+  "file_watcher",
+]
+
+# COLLECTION: Features used to build audio Bevy apps.
+audio = ["bevy_audio", "vorbis"]
+
+# COLLECTION: Enables audio features and all supported formats.
+audio-all-formats = ["bevy_audio", "aac", "flac", "mp3", "mp4", "vorbis", "wav"]
+
+# COLLECTION: Features used to compose Bevy scenes.
+scene = ["bevy_world_serialization", "bevy_scene"]
+
+# COLLECTION: Enables picking with all backends.
+picking = ["bevy_picking", "mesh_picking", "sprite_picking", "ui_picking"]
+
+# COLLECTION: The core pieces that most apps need. This serves as a baseline feature set for other higher level feature collections (such as "2d" and "3d"). It is also useful as a baseline feature set for scenarios like headless apps that require no rendering (ex: command line tools, servers, etc).
+default_app = [
+  "async_executor",
+  "bevy_asset",
+  "bevy_log",
+  "bevy_state",
+  "reflect_auto_register",
+]
+
+# COLLECTION: These are platform support features, such as OS support/features, windowing and input backends, etc.
+default_platform = [
+  "std",
+  "bevy_gilrs",
+  "bevy_winit",
+  # Note: OS-integrated clipboard support is gated behind the `system_clipboard` feature,
+  # which is not enabled by default for security reasons.
+  "bevy_clipboard",
+  "default_font",
+  "multi_threaded",
+  "webgl2",
+  "x11",
+  "wayland",
+  "custom_cursor",
+  "sysinfo_plugin",
+]
+
+# COLLECTION: Default scene definition features. Note that this does not include an actual renderer, such as bevy_render (Bevy's default render backend).
+common_api = [
+  "bevy_animation",
+  "bevy_camera",
+  "bevy_color",
+  "bevy_gizmos",
+  "bevy_image",
+  "bevy_mesh",
+  "bevy_shader",
+  "bevy_material",
+  "bevy_text",
+  "bevy_window",
+  "bmp",
+  "hdr",
+  "ktx2",
+  "png",
+  "tga",
+]
+
+# COLLECTION: Features used to build 2D Bevy apps (does not include a render backend). You generally don't need to worry about this unless you are using a custom renderer.
+2d_api = ["common_api", "bevy_sprite"]
+
+# COLLECTION: Bevy's built-in 2D renderer, built on top of `bevy_render`.
+2d_bevy_render = [
+  "2d_api",
+  "bevy_render",
+  "bevy_core_pipeline",
+  "bevy_post_process",
+  "bevy_sprite_render",
+  "bevy_gizmos_render",
+]
+
+# COLLECTION: Features used to build 3D Bevy apps (does not include a render backend). You generally don't need to worry about this unless you are using a custom renderer.
+3d_api = [
+  "common_api",
+  "bevy_light",
+  "bevy_mikktspace",
+  "ktx2",
+  "morph_animation",
+  "morph",
+  "smaa_luts",
+  "tonemapping_luts",
+  "zstd_rust",
+]
+
+# COLLECTION: Bevy's built-in 3D renderer, built on top of `bevy_render`.
+3d_bevy_render = [
+  "3d_api",
+  "bevy_render",
+  "bevy_core_pipeline",
+  "bevy_gizmos_render",
+  "bevy_anti_alias",
+  "bevy_gltf",
+  "bevy_pbr",
+  "bevy_post_process",
+  "gltf_animation",
+]
+
+# COLLECTION: Features used to build UI Bevy apps (does not include a render backend). You generally don't need to worry about this unless you are using a custom renderer.
+ui_api = ["default_app", "common_api", "bevy_input_focus", "bevy_ui"]
+
+# COLLECTION: Bevy's built-in UI renderer, built on top of `bevy_render`.
+ui_bevy_render = [
+  "ui_api",
+  "bevy_render",
+  "bevy_core_pipeline",
+  "bevy_ui_render",
+]
+
+# COLLECTION: Recommended defaults for no_std applications.
+default_no_std = ["libm", "critical-section", "bevy_color", "bevy_state"]
+
+# Provides an implementation for picking meshes
+mesh_picking = ["bevy_internal/mesh_picking"]
+
+# Provides an implementation for picking sprites
+sprite_picking = ["bevy_internal/sprite_picking"]
+
+# Provides an implementation for picking UI
+ui_picking = ["bevy_internal/ui_picking"]
+
+# Provides a debug overlay for bevy UI
+bevy_ui_debug = ["bevy_internal/bevy_ui_debug"]
+
+# Force dynamic linking, which improves iterative compile times
+dynamic_linking = ["dep:bevy_dylib", "bevy_internal/dynamic_linking"]
+
+# Enables system information diagnostic plugin
+sysinfo_plugin = ["bevy_internal/sysinfo_plugin"]
+
+# Provides animation functionality
+bevy_animation = ["bevy_internal/bevy_animation"]
+
+# Provides asset functionality
+bevy_asset = ["bevy_internal/bevy_asset"]
+
+# Provides audio functionality
+bevy_audio = ["bevy_internal/bevy_audio"]
+
+# Provides shared color types and operations
+bevy_color = ["bevy_internal/bevy_color"]
+
+# Provides cameras and other basic render pipeline features
+bevy_core_pipeline = ["bevy_internal/bevy_core_pipeline"]
+
+# Provides post process effects such as depth of field, bloom, chromatic aberration.
+bevy_post_process = ["bevy_internal/bevy_post_process"]
+
+# Provides various anti aliasing solutions
+bevy_anti_alias = ["bevy_internal/bevy_anti_alias"]
+
+# Adds gamepad support
+bevy_gilrs = ["gamepad", "bevy_internal/bevy_gilrs"]
+
+# [glTF](https://www.khronos.org/gltf/) support
+bevy_gltf = ["bevy_internal/bevy_gltf"]
+
+# Adds PBR rendering
+bevy_pbr = ["bevy_internal/bevy_pbr"]
+
+# Provides picking functionality without any backend
+bevy_picking = ["bevy_internal/bevy_picking"]
+
+# Provides rendering functionality
+bevy_render = ["bevy_internal/bevy_render"]
+
+# Provides ECS serialization functionality
+bevy_world_serialization = ["bevy_internal/bevy_world_serialization"]
+
+# Provides scene functionality
+bevy_scene = ["bevy_internal/bevy_scene"]
+
+# Provides raytraced lighting (experimental)
+bevy_solari = ["bevy_internal/bevy_solari"]
+
+# Provides sprite functionality
+bevy_sprite = ["bevy_internal/bevy_sprite"]
+
+# Provides sprite rendering functionality
+bevy_sprite_render = ["bevy_internal/bevy_sprite_render"]
+
+# Provides text functionality
+bevy_text = ["bevy_internal/bevy_text"]
+
+# A custom ECS-driven UI framework
+bevy_ui = ["bevy_internal/bevy_ui"]
+
+# Provides rendering functionality for bevy_ui
+bevy_ui_render = ["bevy_internal/bevy_ui_render"]
+
+# Windowing layer
+bevy_window = ["bevy_internal/bevy_window"]
+
+# winit window and input backend
+bevy_winit = ["bevy_internal/bevy_winit"]
+
+# Load and access image data. Usually added by an image format
+bevy_image = ["bevy_internal/bevy_image"]
+
+# Provides a mesh format and some primitive meshing routines.
+bevy_mesh = ["bevy_internal/bevy_mesh"]
+
+# Provides vertex tangent generation for use with bevy_mesh.
+bevy_mikktspace = ["bevy_internal/bevy_mikktspace"]
+
+# Provides camera and visibility types, as well as culling primitives.
+bevy_camera = ["bevy_internal/bevy_camera"]
+
+# Provides light types such as point lights, directional lights, spotlights.
+bevy_light = ["bevy_internal/bevy_light"]
+
+# Provides shaders usable through asset handles.
+bevy_shader = ["bevy_internal/bevy_shader"]
+
+# Provides materials.
+bevy_material = ["bevy_internal/bevy_material"]
+
+# Adds support for gizmos
+bevy_gizmos = ["bevy_internal/bevy_gizmos"]
+
+# Adds support for rendering gizmos
+bevy_gizmos_render = ["bevy_internal/bevy_gizmos_render"]
+
+# Provides a collection of developer tools
+bevy_dev_tools = ["bevy_internal/bevy_dev_tools"]
+
+# Provides a collection of prebuilt camera controllers
+bevy_camera_controller = ["bevy_internal/bevy_camera_controller"]
+
+# Enables the free cam from bevy_camera_controller
+free_camera = ["bevy_internal/free_camera"]
+
+# Enables the pan camera from bevy_camera_controller
+pan_camera = ["bevy_internal/pan_camera"]
+
+# Enable the Bevy Remote Protocol
+bevy_remote = ["bevy_internal/bevy_remote"]
+
+# Enable integration with `tracing` and `log`
+bevy_log = ["bevy_internal/bevy_log"]
+
+# Enable input focus subsystem
+bevy_input_focus = ["bevy_internal/bevy_input_focus"]
+
+# Clipboard resource and management. See `system_clipboard` for OS-integrated clipboard support.
+bevy_clipboard = ["bevy_internal/bevy_clipboard"]
+
+# Headless widget collection for Bevy UI.
+bevy_ui_widgets = [
+  "bevy_internal/bevy_ui_widgets",
+  "bevy_input_focus",
+  "bevy_ui",
+]
+
+# Load and save settings
+bevy_settings = ["bevy_internal/bevy_settings"]
+
+# Feathers widget collection.
+bevy_feathers = ["bevy_internal/bevy_feathers", "bevy_ui_widgets"]
+
+# Enable passthrough loading for SPIR-V shaders (Only supported on Vulkan, shader capabilities and extensions must agree with the platform implementation)
+spirv_shader_passthrough = ["bevy_internal/spirv_shader_passthrough"]
+
+# Statically linked DXC shader compiler for DirectX 12
+statically-linked-dxc = ["bevy_internal/statically-linked-dxc"]
+
+# Forces the wgpu instance to be initialized using the raw Vulkan HAL, enabling additional configuration
+raw_vulkan_init = ["bevy_internal/raw_vulkan_init"]
+
+# Pre-populate buffer labels with buffer types for debugging.
+type_label_buffers = ["bevy_internal/type_label_buffers"]
+
+# Tracing support, saving a file in Chrome Tracing format
+trace_chrome = ["trace", "bevy_internal/trace_chrome", "debug"]
+
+# Tracing support, exposing a port for Tracy
+trace_tracy = ["trace", "bevy_internal/trace_tracy", "debug"]
+
+# Tracing support, with memory profiling, exposing a port for Tracy
+trace_tracy_memory = ["bevy_internal/trace_tracy_memory"]
+
+# Tracing support
+trace = ["bevy_internal/trace", "dep:tracing"]
+
+# Basis Universal compressed texture support
+basis-universal = ["bevy_internal/basis-universal"]
+
+# Enables compressed KTX2 UASTC texture output on the asset processor
+compressed_image_saver = ["bevy_internal/compressed_image_saver"]
+
+# Enables system-level clipboard support.
+system_clipboard = ["bevy_clipboard", "bevy_internal/system_clipboard"]
+
+# Enables image copy/paste via the system clipboard. Not supported on WASM.
+clipboard_image = ["system_clipboard", "bevy_internal/clipboard_image"]
+
+# BMP image format support
+bmp = ["bevy_internal/bmp"]
+
+# DDS compressed texture support
+dds = ["bevy_internal/dds"]
+
+# EXR image format support
+exr = ["bevy_internal/exr"]
+
+# Farbfeld image format support
+ff = ["bevy_internal/ff"]
+
+# GIF image format support
+gif = ["bevy_internal/gif"]
+
+# HDR image format support
+hdr = ["bevy_internal/hdr"]
+
+# KTX2 compressed texture support
+ktx2 = ["bevy_internal/ktx2"]
+
+# ICO image format support
+ico = ["bevy_internal/ico"]
+
+# JPEG image format support
+jpeg = ["bevy_internal/jpeg"]
+
+# PNG image format support
+png = ["bevy_internal/png"]
+
+# PNM image format support, includes pam, pbm, pgm and ppm
+pnm = ["bevy_internal/pnm"]
+
+# QOI image format support
+qoi = ["bevy_internal/qoi"]
+
+# TGA image format support
+tga = ["bevy_internal/tga"]
+
+# TIFF image format support
+tiff = ["bevy_internal/tiff"]
+
+# WebP image format support
+webp = ["bevy_internal/webp"]
+
+# For KTX2 supercompression
+zlib = ["bevy_internal/zlib"]
+
+# For KTX2 Zstandard decompression using pure rust [ruzstd](https://crates.io/crates/ruzstd). This is the safe default. For maximum performance, use "zstd_c".
+zstd_rust = ["bevy_internal/zstd_rust"]
+
+# For KTX2 Zstandard decompression using [zstd](https://crates.io/crates/zstd). This is a faster backend, but uses unsafe C bindings. For the safe option, stick to the default backend with "zstd_rust".
+zstd_c = ["bevy_internal/zstd_c"]
+
+# FLAC audio format support (through `symphonia`)
+symphonia-flac = ["bevy_internal/symphonia-flac"]
+
+# OGG/VORBIS audio format support (through `symphonia`)
+symphonia-vorbis = ["bevy_internal/symphonia-vorbis"]
+
+# WAV audio format support (through `symphonia`)
+symphonia-wav = ["bevy_internal/symphonia-wav"]
+
+# AAC audio format support (through `symphonia`)
+aac = ["bevy_internal/aac"]
+
+# FLAC audio format support (through `claxon`)
+flac = ["bevy_internal/flac"]
+
+# MP4 audio format support (through `symphonia`). It also enables AAC support.
+mp4 = ["bevy_internal/mp4"]
+
+# MP3 audio format support (through `symphonia`)
+mp3 = ["bevy_internal/mp3"]
+
+# OGG/VORBIS audio format support (through `lewton`)
+vorbis = ["bevy_internal/vorbis"]
+
+# WAV audio format support (through `hound`)
+wav = ["bevy_internal/wav"]
+
+# Enable serialization support through serde
+serialize = ["bevy_internal/serialize"]
+
+# Enables multithreaded parallelism in the engine. Disabling it forces all engine tasks to run on a single thread.
+multi_threaded = ["bevy_internal/multi_threaded"]
+
+# Use async-io's implementation of block_on instead of futures-lite's implementation. This is preferred if your application uses async-io.
+async-io = ["bevy_internal/async-io"]
+
+# Wayland display server support
+wayland = ["bevy_internal/wayland"]
+
+# X11 display server support
+x11 = ["bevy_internal/x11"]
+
+# Android NativeActivity support. Legacy, should be avoided for most new Android games.
+android-native-activity = ["bevy_internal/android-native-activity"]
+
+# Android GameActivity support. Default, choose between this and `android-native-activity`.
+android-game-activity = ["bevy_internal/android-game-activity"]
+
+# Enable systems that allow for automated testing on CI
+bevy_ci_testing = ["bevy_internal/bevy_ci_testing"]
+
+# Enable glTF animation loading
+gltf_animation = ["bevy_internal/gltf_animation"]
+
+# Enables support for morph target weights in bevy_mesh
+morph = ["bevy_internal/morph"]
+
+# Enables bevy_mesh and bevy_animation morph weight support
+morph_animation = ["bevy_internal/morph_animation"]
+
+# Enable detailed trace event logging. These trace events are expensive even when off, thus they require compile time opt-in
+detailed_trace = ["bevy_internal/detailed_trace"]
+
+# Include tonemapping Look Up Tables KTX2 files. If everything is pink, you need to enable this feature or change the `Tonemapping` method for your `Camera2d` or `Camera3d`.
+tonemapping_luts = ["bevy_internal/tonemapping_luts"]
+
+# Include SMAA Look Up Tables KTX2 Files
+smaa_luts = ["bevy_internal/smaa_luts"]
+
+# Include spatio-temporal blue noise KTX2 file used by generated environment maps, Solari and atmosphere
+bluenoise_texture = ["bevy_internal/bluenoise_texture"]
+
+# Include a preintegrated BRDF Look Up Table for more accurate specular shading.
+dfg_lut = ["bevy_internal/dfg_lut"]
+
+# Include Look Up Tables that are required for area lights.
+area_light_luts = ["bevy_internal/area_light_luts"]
+
+# NVIDIA Deep Learning Super Sampling
+dlss = ["bevy_internal/dlss"]
+
+# Forcibly disable DLSS so that cargo build --all-features works without the DLSS SDK being installed. Not meant for users.
+force_disable_dlss = ["bevy_internal/force_disable_dlss"]
+
+# Enable AccessKit on Unix backends (currently only works with experimental screen readers and forks.)
+accesskit_unix = ["bevy_internal/accesskit_unix"]
+
+# Enable assertions to check the validity of parameters passed to glam
+glam_assert = ["bevy_internal/glam_assert"]
+
+# Enable assertions in debug builds to check the validity of parameters passed to glam
+debug_glam_assert = ["bevy_internal/debug_glam_assert"]
+
+# Include a default font, containing only ASCII characters, at the cost of a 20kB binary size increase
+default_font = ["bevy_internal/default_font"]
+
+# Allows for discovery of preloaded system fonts
+system_font_discovery = ["bevy_internal/system_font_discovery"]
+
+# Enable support for shaders in GLSL
+shader_format_glsl = ["bevy_internal/shader_format_glsl"]
+
+# Enable support for shaders in SPIR-V
+shader_format_spirv = ["bevy_internal/shader_format_spirv"]
+
+# Enable support for shaders in WESL
+shader_format_wesl = ["bevy_internal/shader_format_wesl"]
+
+# Enable support for transmission-related textures in the `StandardMaterial`, at the risk of blowing past the global, per-shader texture limit on older/lower-end GPUs
+pbr_transmission_textures = ["bevy_internal/pbr_transmission_textures"]
+
+# Enable support for Clustered Decals
+pbr_clustered_decals = ["bevy_internal/pbr_clustered_decals"]
+
+# Enable support for Light Textures
+pbr_light_textures = ["bevy_internal/pbr_light_textures"]
+
+# Enable support for multi-layer material textures in the `StandardMaterial`, at the risk of blowing past the global, per-shader texture limit on older/lower-end GPUs
+pbr_multi_layer_material_textures = [
+  "bevy_internal/pbr_multi_layer_material_textures",
+]
+
+# Enable support for anisotropy texture in the `StandardMaterial`, at the risk of blowing past the global, per-shader texture limit on older/lower-end GPUs
+pbr_anisotropy_texture = ["bevy_internal/pbr_anisotropy_texture"]
+
+# Enable support for PCSS, at the risk of blowing past the global, per-shader sampler limit on older/lower-end GPUs
+experimental_pbr_pcss = ["bevy_internal/experimental_pbr_pcss"]
+
+# Enable support for specular textures in the `StandardMaterial`, at the risk of blowing past the global, per-shader texture limit on older/lower-end GPUs
+pbr_specular_textures = ["bevy_internal/pbr_specular_textures"]
+
+# Enable some limitations to be able to use WebGL2. Please refer to the [WebGL2 and WebGPU](https://github.com/bevyengine/bevy/tree/latest/examples#webgl2-and-webgpu) section of the examples README for more information on how to run Wasm builds with WebGPU.
+webgl2 = ["bevy_internal/webgl"]
+
+# Enable support for WebGPU in Wasm. When enabled, this feature will override the `webgl2` feature and you won't be able to run Wasm builds with WebGL2, only with WebGPU.
+webgpu = ["bevy_internal/webgpu"]
+
+# Enables the built-in asset processor for processed assets.
+asset_processor = ["bevy_internal/asset_processor"]
+
+# Enables watching the filesystem for Bevy Asset hot-reloading
+file_watcher = ["bevy_internal/file_watcher"]
+
+# Enables watching in memory asset providers for Bevy Asset hot-reloading
+embedded_watcher = ["bevy_internal/embedded_watcher"]
+
+# Enables downloading assets from HTTP sources. Warning: there are security implications. Read the docs on WebAssetPlugin.
+http = ["bevy_internal/http"]
+
+# Enables downloading assets from HTTPS sources. Warning: there are security implications. Read the docs on WebAssetPlugin.
+https = ["bevy_internal/https"]
+
+# Enable caching downloaded assets on the filesystem. NOTE: this cache currently never invalidates entries!
+web_asset_cache = ["bevy_internal/web_asset_cache"]
+
+# Enable stepping-based debugging of Bevy systems
+bevy_debug_stepping = [
+  "bevy_internal/bevy_debug_stepping",
+  "bevy_internal/debug",
+]
+
+# Enable collecting schedule data from the app.
+schedule_data = ["bevy_internal/schedule_data"]
+
+# Enables the meshlet renderer for dense high-poly scenes (experimental)
+meshlet = ["bevy_internal/meshlet"]
+
+# Enables processing meshes into meshlet meshes for bevy_pbr
+meshlet_processor = ["bevy_internal/meshlet_processor"]
+
+# Enable built in global state machines
+bevy_state = ["bevy_internal/bevy_state"]
+
+# Enables source location tracking for change detection and spawning/despawning, which can assist with debugging
+track_location = ["bevy_internal/track_location"]
+
+# Enable function reflection
+reflect_functions = ["bevy_internal/reflect_functions"]
+
+# Enables bevy_reflect to access documentation comments of rust code at runtime
+reflect_documentation = ["bevy_internal/reflect_documentation"]
+
+# Enable automatic reflect registration
+reflect_auto_register = ["bevy_internal/reflect_auto_register"]
+
+# Enable automatic reflect registration without inventory. See `reflect::load_type_registrations` for more info.
+reflect_auto_register_static = ["bevy_internal/reflect_auto_register_static"]
+
+# Enable winit custom cursor support
+custom_cursor = ["bevy_internal/custom_cursor"]
+
+# Experimental support for nodes that are ignored for UI layouting
+ghost_nodes = ["bevy_internal/ghost_nodes"]
+
+# Uses `async-executor` as a task execution backend.
+async_executor = ["std", "bevy_internal/async_executor"]
+
+# Allows access to the `std` crate.
+std = ["bevy_internal/std"]
+
+# `critical-section` provides the building blocks for synchronization primitives on all platforms, including `no_std`.
+critical-section = ["bevy_internal/critical-section"]
+
+# Uses the `libm` maths library instead of the one provided in `std` and `core`.
+libm = ["bevy_internal/libm"]
+
+# Enables use of browser APIs. Note this is currently only applicable on `wasm32` architectures.
+web = ["bevy_internal/web"]
+
+# Mouse support. Automatically enabled by `bevy_window`.
+mouse = ["bevy_internal/mouse"]
+
+# Keyboard support. Automatically enabled by `bevy_window`.
+keyboard = ["bevy_internal/keyboard"]
+
+# Gamepad support. Automatically enabled by `bevy_gilrs`.
+gamepad = ["bevy_internal/gamepad"]
+
+# Touch support. Automatically enabled by `bevy_window`.
+touch = ["bevy_internal/touch"]
+
+# Gestures support. Automatically enabled by `bevy_window`.
+gestures = ["bevy_internal/gestures"]
+
+# Enable hotpatching of Bevy systems
+hotpatching = ["bevy_internal/hotpatching"]
+
+# Enable collecting debug information about systems and components to help with diagnostics
+debug = ["bevy_internal/debug"]
+
+[dependencies]
+bevy_internal = { path = "crates/bevy_internal", version = "0.19.0", default-features = false }
+tracing = { version = "0.1", default-features = false, optional = true }
+
+# Wasm does not support dynamic linking.
+[target.'cfg(not(target_family = "wasm"))'.dependencies]
+bevy_dylib = { path = "crates/bevy_dylib", version = "0.19.0", default-features = false, optional = true }

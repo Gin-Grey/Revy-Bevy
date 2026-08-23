@@ -1,0 +1,31 @@
+[package]
+name = "ufbx"
+version = "0.9.0"
+authors = ["bqqbarbhg <bqqbarbhg@gmail.com>"]
+edition = "2018"
+description = "Bindings for ufbx"
+license = "MIT OR PDDL-1.0"
+homepage = "https://github.com/ufbx/ufbx-rust"
+repository = "https://github.com/ufbx/ufbx-rust"
+build = "build.rs"
+include = [
+    "build.rs",
+    "src/*",
+    "ufbx/*",
+]
+resolver = "2"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+mint = { version = "0.5.8", optional = true, default-features = false }
+
+[features]
+nightly = []
+
+[dev-dependencies]
+panic-message = "0.3.0"
+libc = "0.2"
+
+[build-dependencies]
+cc = "1.0"

@@ -1,0 +1,21 @@
+[project]
+name = "Revy Game"
+format_version = 1
+main_scene = "assets/scenes/untitled.bsn"
+
+[display.window]
+title = "Revy Game"
+width = 1280
+height = 720
+mode = "windowed"
+vsync = true
+
+[editor.snap_2d]
+enabled = false
+grid_visible = true
+grid_size = 32
+grid_offset_x = 0
+grid_offset_y = 0
+smart_distance_px = 8
+rotation_step_degrees = 15
+scale_step = 0.1

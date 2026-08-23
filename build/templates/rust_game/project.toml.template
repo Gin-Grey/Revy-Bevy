@@ -1,0 +1,11 @@
+[project]
+name = "{{PROJECT_NAME}}"
+format_version = 1
+main_scene = ""
+
+[display.window]
+title = "{{PROJECT_NAME}}"
+width = 1280
+height = 720
+mode = "windowed"
+vsync = true

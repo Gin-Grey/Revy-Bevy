@@ -1,0 +1,137 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - trunk
+      - ci/**
+  pull_request:
+
+env:
+  RUSTFLAGS: -D warnings
+  RUSTDOCFLAGS: -D warnings
+  CI_RUST_VERSION: "1.85"
+  CI_RUST_MSRV: "1.56"
+
+jobs:
+  build:
+    timeout-minutes: 10
+
+    strategy:
+      matrix:
+        include:
+          # wasm stable
+          - name: "stable wasm"
+            os: "ubuntu-latest"
+            target: "wasm32-unknown-unknown"
+
+          # native stable
+          - name: "stable linux"
+            os: "ubuntu-latest"
+            target: "x86_64-unknown-linux-gnu"
+
+          - name: "stable mac"
+            os: "macos-latest"
+            target: "x86_64-apple-darwin"
+
+          - name: "stable windows"
+            os: "windows-latest"
+            target: "x86_64-pc-windows-msvc"
+
+      fail-fast: false
+
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.name }}
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v6
+
+      - name: install rust
+        uses: cwfitzgerald/repo-common/.github/actions/install-rust@trunk
+        with:
+          version: ${{ env.CI_RUST_VERSION }}
+          components: clippy
+          targets: ${{ matrix.target }}
+
+      - name: install cargo-nextest
+        uses: taiki-e/install-action@cargo-nextest
+
+      - name: install ktx-software
+        if: matrix.name != 'stable wasm'
+        uses: ./.github/actions/install-ktx-software
+
+      - name: clippy
+        shell: bash
+        run: |
+          set -e
+
+          cargo clippy --target ${{ matrix.target }} --all-features
+          cargo clippy --target ${{ matrix.target }} --no-default-features
+
+      - name: doc
+        shell: bash
+        run: |
+          set -e
+
+          cargo doc --no-deps --target ${{ matrix.target }}
+
+      - name: test
+        shell: bash
+        if: matrix.name != 'stable wasm'
+        run: |
+          set -e
+
+          cargo nextest run --target ${{ matrix.target }}
+          cargo test --doc --target ${{ matrix.target }}
+
+  cargo-fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v6
+
+      - name: install rust
+        uses: cwfitzgerald/repo-common/.github/actions/install-rust@trunk
+        with:
+          version: ${{ env.CI_RUST_VERSION }}
+          components: rustfmt
+
+      - name: check format
+        run: cargo fmt --check
+
+  cargo-deny:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v6
+
+      - name: check denies
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          log-level: warn
+          command: check
+          arguments: --all-features
+
+  msrv:
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: ""
+      RUSTDOCFLAGS: ""
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v6
+
+      - name: install rust
+        uses: cwfitzgerald/repo-common/.github/actions/install-rust@trunk
+        with:
+          version: ${{ env.CI_RUST_MSRV }}
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: check msrv
+        run: |
+          set -e
+
+          cargo check
+          cargo check --no-default-features
