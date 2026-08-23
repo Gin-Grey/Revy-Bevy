@@ -1,5 +1,17 @@
 # Revy
 
+> [!CAUTION]
+> **项目开发声明**
+>
+> 目前，项目的大部分代码由 AI 辅助完成。接下来，我会适当放缓功能开发，
+> 将重心转向代码审查、重构与质量优化，直到我们真正理解并能够完全掌控整个系统。
+> 这个过程或许漫长，也需要更多耐心。
+>
+> Revy 的目标并不只是成为一款游戏引擎。我希望它未来能够进一步对接嵌入式设备
+> 与机器人仿真系统，逐步发展为一个开放、可靠且通用的实时交互与仿真平台。
+
+![Revy 编辑器界面](docs/images/revy-editor-overview.png)
+
 Revy is an independent open-source engine workspace derived from Bevy **0.19**, with a
 Godot-inspired desktop editor and a separate game project. The inherited Bevy
 foundation and the custom engine now share one engine source workspace.
